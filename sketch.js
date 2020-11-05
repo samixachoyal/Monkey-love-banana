@@ -1,8 +1,9 @@
 var bakground,bakgroundImage;
-var monkey , monkey_running,monkeycollided;
+var player , player_running,playercollided;
 var banana ,bananaImage, obstacle, obstacleImage;
 var FoodGroup, obstacleGroup;
 var score;
+var sc;
 var ground,groundImage;
 var invisible;
 
@@ -18,9 +19,9 @@ var bananaC;
 function preload(){
   
   bakgroundImage = loadImage("s.jpg");
-    monkey_running =           loadAnimation("sprite_0.png","sprite_1.png","sprite_2.png","sprite_3.png","sprite_4.png","sprite_5.png","sprite_6.png","sprite_7.png","sprite_8.png");
+    player_running =           loadAnimation("sprite_0.png","sprite_1.png","sprite_2.png","sprite_3.png","sprite_4.png","sprite_5.png","sprite_6.png","sprite_7.png","sprite_8.png");
   
-  monkeycollided = loadAnimation("sprite_1.png");
+  playercollided = loadAnimation("sprite_1.png");
 
     bananaImage = loadImage("banana.png");
     obstacleImage = loadImage("obstacle.png");
@@ -33,21 +34,22 @@ function preload(){
 
 function setup() {
   
-createCanvas(500,500);
+createCanvas(windowWidth,windowHeight);
   
 bakground = createSprite(250,250);
 bakground.addImage("bakground",bakgroundImage);
+bakground.scale = 2;
   
-monkey = createSprite(100,415,30,30);
-monkey.addAnimation("monkey",monkey_running);
-monkey.addAnimation("collided", monkeycollided);
-monkey.debug = false;  
-monkey.setCollider("rectangle",0,0,40,monkey.height);  
-monkey.scale = 0.1;
+player = createSprite(100,415,30,30);
+player.addAnimation("player",player_running);
+player.addAnimation("collided",playercollided);
+player.debug = false;  
+player.setCollider("rectangle",0,0,40,player.height);  
+player.scale = 0.1;
   
-ground = createSprite(100,530,1000,5);
+ground = createSprite(100,600,1000,5);
 ground.addImage("ground",groundImage);
-ground.scale = 1.9;  
+ground.scale = 2.9;  
   
 FoodGroup = createGroup();
 obstacleGroup = createGroup(); 
@@ -57,7 +59,9 @@ invisible.visible = false;
   
 score = 0;
   
-bananaC = 0;  
+bananaC = 0;
+  
+sc = 0;  
   
 }
 
@@ -69,32 +73,35 @@ if(gameState===PLAY){
 food();
 obstacles();
   
-if(monkey.isTouching(FoodGroup)){
+if(player.isTouching(FoodGroup)){
   
 FoodGroup.destroyEach();
-bananaC = bananaC + 1;  
+bananaC = bananaC + 1;
+player.scale = player.scale + 0.01;
+sc = sc+2;  
   
 }
   
 score = score + Math.round(getFrameRate()/67);
   
-  if(monkey.isTouching(obstacleGroup)){
+  if(player.isTouching(obstacleGroup)){
   
-gameState=END;    
+gameState=END;
+player.scale = 0.1;    
   
 }      
 }  
   
-if(keyDown("space")){
-monkey.velocityY = -15;   
-
+if(touches.length > 0 || keyDown("SPACE")) {
+player.velocityY = -10;
+touches = [];
 }  
   
-monkey.velocityY = monkey.velocityY + 0.8;  
+player.velocityY = player.velocityY + 0.8;  
   
 
   
-monkey.collide(ground);
+player.collide(ground);
   
 obstacleGroup.collide(invisible);  
 
@@ -113,23 +120,29 @@ bakground.x = bakground.width/2;
 drawSprites();
 
 fill("blue"); 
-textSize(15);  
-text("SURVIVAL TIME : "+ score, 200,50); 
+textSize(20);  
+text("SURVIVAL TIME : "+ score, widht-100,50); 
   
 fill("yellow");
-textSize(13);
-text("Banana Collect : "+ bananaC,220,70);
+textSize(17);
+text("Banana Collect : "+ bananaC,width-100,70);
+  
+fill("cyan");
+textSize(15);
+text("score :"+sc,width-100,90);  
   
 if(gameState===END){
   
-monkey.changeAnimation("collided",monkeycollided);
+player.changeAnimation("collided",playercollided);
 
 fill("red")  
 textSize(15);
-text("GAME OVER!",200,200);  
+text("GAME OVER!",width-400,200);
+  
+player.collide(ground);  
 
 ground.velocityX = 0;
-monkey.velocityY = 0;
+player.velocityY = 0;
 bakground.velocityX = 0;  
 FoodGroup.setVelocityXEach(0)
 obstacleGroup.setVelocityXEach(0) 
